@@ -9,7 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Match implements Serializable
+public class Match implements Serializable, Comparable<Match>
 {
 
     @SerializedName("home")
@@ -126,6 +126,11 @@ public class Match implements Serializable
     public Match withDate(Date date) {
         setDate(date);
         return this;
+    }
+
+    @Override
+    public int compareTo(Match o) {
+        return this.getDate().compareTo(o.getDate());
     }
 
 }

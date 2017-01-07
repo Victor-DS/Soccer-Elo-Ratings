@@ -5,8 +5,9 @@ import java.io.Serializable;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import java.util.Collections;
 
-public class League implements Serializable
+public class League implements Serializable, Comparable<League>
 {
 
     @SerializedName("champion")
@@ -43,6 +44,8 @@ public class League implements Serializable
         this.name = name;
         this.matches = matches;
         this.year = year;
+        
+        Collections.sort(matches);
     }
 
     public String getChampion() {
@@ -77,10 +80,11 @@ public class League implements Serializable
 
     public void setMatches(List<Match> matches) {
         this.matches = matches;
+        Collections.sort(matches);
     }
 
     public League withMatches(List<Match> matches) {
-        this.matches = matches;
+        setMatches(matches);
         return this;
     }
 
@@ -97,4 +101,8 @@ public class League implements Serializable
         return this;
     }
 
+    @Override
+    public int compareTo(League o) {
+        return Integer.compare(this.getYear(), o.getYear());
+    }
 }
