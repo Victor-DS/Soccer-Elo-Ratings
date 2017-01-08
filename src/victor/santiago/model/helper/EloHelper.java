@@ -179,7 +179,7 @@ public class EloHelper {
     
     private double getWinningExpectancy(Team a, Team b) {
         return 1.00 / 
-                (Math.pow(10.00, (getRatingDifference(a, b)/400.00)) + 1.00);
+                (Math.pow(10.00, (-getRatingDifference(a, b)/400.00)) + 1.00);
     }
     
     private double getRatingDifference(Team a, Team b) {
