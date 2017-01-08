@@ -29,32 +29,28 @@ import com.google.gson.reflect.TypeToken;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import victor.santiago.model.League;
 import victor.santiago.model.Team;
-import victor.santiago.model.Util;
+import victor.santiago.model.helper.EloHelper;
+import victor.santiago.model.helper.Util;
 
 /**
  *
  * @author Victor Santiago
  */
 public class EloCalculator {
-    
-    private double K;
-    
-    private boolean regressTowardMean;
-    
+            
     private ArrayList<League> leagues;
-    private Map<String, Team> teams;
+    private EloHelper eHelper;
     
     private Gson gson;
     
-    private EloCalculator() {
-        K = 20;
-        regressTowardMean = true;
+    public EloCalculator() {
         leagues = new ArrayList<>();
-        teams = new HashMap<>();
+        eHelper = new EloHelper();
         
         gson = new GsonBuilder()
                 .setPrettyPrinting()
@@ -63,19 +59,19 @@ public class EloCalculator {
     }
 
     public double getK() {
-        return K;
+        return eHelper.getK();
     }
 
     public void setK(double K) {
-        this.K = K;
+        eHelper.setK(K);
     }
 
-    public boolean isRegressTowardMean() {
-        return regressTowardMean;
+    public boolean willRegressTowardMean() {
+        return eHelper.willRegressTowardMean();
     }
 
     public void setRegressTowardMean(boolean regressTowardMean) {
-        this.regressTowardMean = regressTowardMean;
+        eHelper.setRegressTowardMean(regressTowardMean);
     }
 
     public ArrayList<League> getLeagues() {
@@ -84,11 +80,13 @@ public class EloCalculator {
 
     public void setLeagues(ArrayList<League> leagues) {
         this.leagues = leagues;
+        Collections.sort(leagues);
     }
     
     public void setLeaguesFromJson(String JSON) {
         this.leagues = gson.fromJson(JSON, 
                 new TypeToken<ArrayList<League>>(){}.getType());
+        Collections.sort(leagues);
     }
     
     public void setLeaguesFromJsonFile(String path) throws IOException {
@@ -99,21 +97,33 @@ public class EloCalculator {
         this.leagues.add(l);
     }
     
+    public void sortLeague() {
+        Collections.sort(leagues);
+    }
+    
+    public boolean hasLeagues() {
+        return !leagues.isEmpty();
+    }
+    
     public void saveLeaguesJSONFile(String path) throws IOException {
         gson.toJson(this.leagues, new FileWriter(path));
     }
 
     public Map<String, Team> getTeams() {
-        return teams;
+        return eHelper.getTeams();
+    }
+    
+    public List<Team> getTeams(boolean sortDesc) {
+        return eHelper.getTeamsSorted(sortDesc);
     }
 
     public void setTeams(Map<String, Team> teams) {
-        this.teams = teams;
+        eHelper.setTeams(teams);
     }
     
     public void setTeamsFromJson(String JSON) {
-        this.teams = gson.fromJson(JSON, 
-                new TypeToken<Map<String, Team>>(){}.getType());
+        eHelper.setTeams(gson.fromJson(JSON, 
+                new TypeToken<Map<String, Team>>(){}.getType()));
     }
     
     public void setTeamsFromJsonFile(String path) throws IOException {
@@ -121,11 +131,29 @@ public class EloCalculator {
     }
     
     public Team getTeam(String t) {
-        return this.teams.get(t);
+        return eHelper.getTeams().get(t);
     }
     
     public void saveTeamsJSONFile(String path) throws IOException {
-        gson.toJson(this.teams, new FileWriter(path));
+        gson.toJson(eHelper.getTeams(), new FileWriter(path));
+    }
+    
+    /**
+     * Calculates the ratings based on the games of all Leagues added.
+     * After calculating, it will delete the league and matches used, 
+     * so it doesn't repeat the same matches later on.
+     * 
+     * @return True if calculated, 
+     * false if there are no League/Matches left to calculate the ratings.
+     */
+    public boolean calculateRatings() {
+        if(!hasLeagues()) return false;
+
+        eHelper.updateRatings(leagues);
+        
+        leagues.clear();
+        
+        return true;
     }
     
     public static class Builder {
