@@ -127,6 +127,12 @@ public class Match implements Serializable, Comparable<Match>
         setDate(date);
         return this;
     }
+    
+    public String getWinner() {
+        if(homeGoals == awayGoals) return null;
+        else if(homeGoals > awayGoals) return home;
+        else return away;
+    }
 
     @Override
     public int compareTo(Match o) {

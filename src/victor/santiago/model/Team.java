@@ -29,7 +29,7 @@ import java.util.ArrayList;
  *
  * @author Victor Santiago
  */
-public class Team {
+public class Team implements Comparable<Team> {
     
     private String name;
     private ArrayList<EloRating> ratings;
@@ -37,6 +37,13 @@ public class Team {
     public Team() {
         name = "Unknown";
         ratings = new ArrayList<>();
+        ratings.add(new EloRating());
+    }
+
+    public Team(String name) {
+        this.name = name;
+        ratings = new ArrayList<>();
+        ratings.add(new EloRating());
     }
 
     public Team(String name, ArrayList<EloRating> ratings) {
@@ -55,8 +62,23 @@ public class Team {
     public ArrayList<EloRating> getRatings() {
         return ratings;
     }
+    
+    public EloRating getLastRating() {
+        int lastIndex = ratings.size() - 1;
+        return ratings.get(lastIndex);
+    }
 
     public void setRatings(ArrayList<EloRating> ratings) {
         this.ratings = ratings;
+    }
+    
+    public void addRating(EloRating rating) {
+        this.ratings.add(rating);
+    }
+
+    @Override
+    public int compareTo(Team o) {
+        return Double.compare(this.getLastRating().getRating(), 
+                o.getLastRating().getRating());
     }
 }
