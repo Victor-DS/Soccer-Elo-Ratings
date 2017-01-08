@@ -32,14 +32,14 @@ import java.util.Date;
 public class EloRating {
     
     private Date date;
-    private int rating;
+    private double rating;
 
     public EloRating() {
         date = new Date();
         rating = 1500;
     }
 
-    public EloRating(Date date, int rating) {
+    public EloRating(Date date, double rating) {
         this.date = date;
         this.rating = rating;
     }
@@ -52,11 +52,11 @@ public class EloRating {
         this.date = date;
     }
 
-    public int getRating() {
+    public double getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public void setRating(double rating) {
         this.rating = rating;
     }
 }
