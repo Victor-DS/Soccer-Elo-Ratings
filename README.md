@@ -62,6 +62,33 @@ for(Team t : teams)
   System.out.println(((int) t.getLastRating().getRating()) + " " + t.getName());         
 ```
 
+### Leagues Input Scheme
+```JSON
+[
+  {
+    "champion": "Palmeiras",
+    "name": "Campeonato Brasileiro 2016",
+    "matches": [
+      {
+        "home": "Vitória",
+        "away": "Palmeiras",
+        "homeGoals": 1,
+        "awayGoals": 2,
+        "date": "Dec 11, 2016 12:00:00 AM"
+      },
+      {
+        "home": "Palmeiras",
+        "away": "Atlético-PR",
+        "homeGoals": 4,
+        "awayGoals": 0,
+        "date": "May 14, 2016 12:00:00 AM"
+      }
+    ],
+    "year": 2016
+  }
+]
+```
+
 ## LICENSE
 ```
 The MIT License (MIT)
