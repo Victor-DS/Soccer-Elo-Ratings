@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import victor.santiago.model.League;
+import victor.santiago.model.Match;
 import victor.santiago.model.Team;
 import victor.santiago.model.helper.EloHelper;
 import victor.santiago.model.helper.Util;
@@ -83,14 +84,14 @@ public class EloCalculator {
         Collections.sort(leagues);
     }
     
-    public void setLeaguesFromJson(String JSON) {
-        this.leagues = gson.fromJson(JSON, 
-                new TypeToken<ArrayList<League>>(){}.getType());
+    public void addLeaguesFromJson(String JSON) {
+        this.leagues.addAll(gson.fromJson(JSON, 
+                new TypeToken<ArrayList<League>>(){}.getType()));
         Collections.sort(leagues);
     }
     
-    public void setLeaguesFromJsonFile(String path) throws IOException {
-        setLeaguesFromJson(Util.readFile(path));
+    public void addLeaguesFromJsonFile(String path) throws IOException {
+        addLeaguesFromJson(Util.readFile(path));
     }
     
     public void addLeague(League l) {
@@ -156,6 +157,16 @@ public class EloCalculator {
         return true;
     }
     
+    /**
+     * Calculates the probability of the HOME team winning the match.
+     * 
+     * @param m The match between the teams. The Score or date is NOT considered.
+     * @return A double representing the % of the HOME team winning the match.
+     */
+    public double getWinProbability(Match m) {
+        return eHelper.getWinningProbability(m);
+    }
+    
     public static class Builder {
         
         private EloCalculator instance;
@@ -174,8 +185,8 @@ public class EloCalculator {
             return this;
         }
         
-        public Builder setLeagues(String path) throws IOException {
-            instance.setLeaguesFromJsonFile(path);
+        public Builder addLeagues(String path) throws IOException {
+            instance.addLeaguesFromJsonFile(path);
             return this;
         }
         
