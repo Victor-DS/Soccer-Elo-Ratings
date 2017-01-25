@@ -36,6 +36,7 @@ import victor.santiago.model.League;
 import victor.santiago.model.Match;
 import victor.santiago.model.Team;
 import victor.santiago.model.helper.EloHelper;
+import victor.santiago.model.simulation.SimulatedLeague;
 import victor.santiago.model.helper.Util;
 
 /**
@@ -139,6 +140,22 @@ public class EloCalculator {
         gson.toJson(eHelper.getTeams(), new FileWriter(path));
     }
     
+    public SimulatedLeague simulateLeague(League l) {
+        return null;
+    }
+     
+    public ArrayList<Match> getMatches(boolean sorted) {
+        ArrayList<Match> matches = new ArrayList<>();
+        
+        for(League l : leagues)
+            matches.addAll(l.getMatches());
+        
+        if(sorted)
+            Collections.sort(matches);
+        
+        return matches;
+    }
+    
     /**
      * Calculates the ratings based on the games of all Leagues added.
      * After calculating, it will delete the league and matches used, 
@@ -150,8 +167,9 @@ public class EloCalculator {
     public boolean calculateRatings() {
         if(!hasLeagues()) return false;
 
-        eHelper.updateRatings(leagues);
-        
+//        eHelper.updateRatings(leagues);
+        eHelper.updateRatingsWithMatches(getMatches(true));
+
         leagues.clear();
         
         return true;

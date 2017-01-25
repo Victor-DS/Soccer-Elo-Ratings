@@ -104,6 +104,11 @@ public class EloHelper {
         this.K = K;
     }
     
+    public void updateRatingsWithMatches(ArrayList<Match> matches) {
+        for(Match m : matches)
+            updateRatings(m);
+    }
+    
     public void updateRatings(ArrayList<League> leagues) {
         for(League l : leagues) {
             for(Match m : l.getMatches())
