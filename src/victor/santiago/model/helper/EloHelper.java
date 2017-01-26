@@ -150,7 +150,9 @@ public class EloHelper {
         double result = getMatchResultValue(m, home);
         double we = getWinningExpectancy(a, b);
         
-        return K * gIndex * (result - we);
+        double k = m.hasCustomK() ? m.getCustomK() : K;
+        
+        return k * gIndex * (result - we);
     }
     
     private double getMatchResultValue(Match m, boolean home) {
