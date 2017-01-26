@@ -28,13 +28,14 @@ public class Match implements Serializable, Comparable<Match>
     @Expose
     private Date date;
     private final static long serialVersionUID = 2479667238057736526L;
+    
+    private double customK;
 
     /**
      * No args constructor for use in serialization
      * 
      */
-    public Match() {
-    }
+    public Match() {}
 
     /**
      * 
@@ -132,6 +133,18 @@ public class Match implements Serializable, Comparable<Match>
         if(homeGoals == awayGoals) return null;
         else if(homeGoals > awayGoals) return home;
         else return away;
+    }
+    
+    public boolean hasCustomK() {
+        return customK != 0;
+    }
+
+    public double getCustomK() {
+        return customK;
+    }
+
+    public void setCustomK(double customK) {
+        this.customK = customK;
     }
 
     @Override
