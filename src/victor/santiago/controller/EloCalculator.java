@@ -88,11 +88,26 @@ public class EloCalculator {
     public void addLeaguesFromJson(String JSON) {
         this.leagues.addAll(gson.fromJson(JSON, 
                 new TypeToken<ArrayList<League>>(){}.getType()));
-        Collections.sort(leagues);
+        //Collections.sort(leagues);
     }
     
     public void addLeaguesFromJsonFile(String path) throws IOException {
         addLeaguesFromJson(Util.readFile(path));
+    }
+    
+    public void addLeaguesFromJsonFile(String path, double k) throws IOException {        
+        String json = Util.readFile(path);
+        
+        ArrayList<League> newLeagues = gson.fromJson(json, 
+                new TypeToken<ArrayList<League>>(){}.getType());
+        
+        for(int i = 0; i < newLeagues.size(); i++) {
+            for(int j = 0; j < newLeagues.get(i).getMatches().size(); j++) {
+                newLeagues.get(i).getMatches().get(j).setCustomK(k);
+            }
+        }
+        
+        this.leagues.addAll(newLeagues);
     }
     
     public void addLeague(League l) {
@@ -205,6 +220,11 @@ public class EloCalculator {
         
         public Builder addLeagues(String path) throws IOException {
             instance.addLeaguesFromJsonFile(path);
+            return this;
+        }
+        
+        public Builder addLeagues(String path, double k) throws IOException {
+            instance.addLeaguesFromJsonFile(path, k);
             return this;
         }
         
