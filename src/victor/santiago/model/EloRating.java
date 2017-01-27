@@ -23,6 +23,8 @@
  */
 package victor.santiago.model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -46,6 +48,11 @@ public class EloRating {
 
     public Date getDate() {
         return date;
+    }
+    
+    public String getDateAsString() {
+        DateFormat df = new SimpleDateFormat("d-MMM-yyyy");
+        return df.format(date);
     }
 
     public void setDate(Date date) {
