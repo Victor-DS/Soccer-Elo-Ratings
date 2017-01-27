@@ -23,6 +23,11 @@
  */
 package victor.santiago.model;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.Normalizer;
 import java.util.ArrayList;
 
 /**
@@ -37,13 +42,11 @@ public class Team implements Comparable<Team> {
     public Team() {
         name = "Unknown";
         ratings = new ArrayList<>();
-        ratings.add(new EloRating());
     }
 
     public Team(String name) {
         this.name = name;
         ratings = new ArrayList<>();
-        ratings.add(new EloRating());
     }
 
     public Team(String name, ArrayList<EloRating> ratings) {
@@ -65,6 +68,9 @@ public class Team implements Comparable<Team> {
     
     public EloRating getLastRating() {
         int lastIndex = ratings.size() - 1;
+
+        if(lastIndex < 0) return new EloRating();
+        
         return ratings.get(lastIndex);
     }
 
@@ -74,6 +80,33 @@ public class Team implements Comparable<Team> {
     
     public void addRating(EloRating rating) {
         this.ratings.add(rating);
+    }
+    
+    public String getCleanName() {
+        return Normalizer.normalize(
+                name.replaceAll("\\s+", "").replaceAll("\\-", ""), 
+                Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+    }
+    
+    public void exportToCSV(String filePath) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("date,rating");
+        sb.append(System.lineSeparator());
+        
+        for(EloRating elo : ratings) {
+            sb.append(elo.getDateAsString());
+            sb.append(",");
+            sb.append((int) elo.getRating());
+            sb.append(System.lineSeparator());
+        }
+        
+        File file = new File(filePath);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        
+        writer.write(sb.toString());
+        writer.flush();
+        writer.close();
     }
 
     @Override
