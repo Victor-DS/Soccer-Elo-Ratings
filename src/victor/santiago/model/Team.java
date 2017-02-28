@@ -90,13 +90,23 @@ public class Team implements Comparable<Team> {
     }
     
     public void exportToCSV(String filePath) throws IOException {
+        export(filePath, ",");
+    }
+    
+    public void exportToTSV(String filePath) throws IOException {
+        export(filePath, "	");
+    }
+    
+    private void export(String filePath, String separator) throws IOException {
         StringBuilder sb = new StringBuilder();
-        sb.append("date,rating");
+        sb.append("date");
+        sb.append(separator);
+        sb.append("rating");
         sb.append(System.lineSeparator());
         
         for(EloRating elo : ratings) {
             sb.append(elo.getDateAsString());
-            sb.append(",");
+            sb.append(separator);
             sb.append((int) elo.getRating());
             sb.append(System.lineSeparator());
         }
