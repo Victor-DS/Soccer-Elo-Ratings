@@ -26,6 +26,7 @@ package victor.santiago.model;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  *
@@ -51,7 +52,7 @@ public class EloRating {
     }
     
     public String getDateAsString() {
-        DateFormat df = new SimpleDateFormat("d-MMM-yyyy");
+        DateFormat df = new SimpleDateFormat("d-MMM-yyyy", Locale.US);
         return df.format(date);
     }
 
