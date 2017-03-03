@@ -89,6 +89,14 @@ for(Team t : teams)
 ]
 ```
 
+## TODO
+A few things I have in mind for the future...
+
+- [ ] **Simulations**: Be able to simulate a League X number of times, randomly, based on the winning expectancy of each team and return the most likely wins by match, and possible champions, for both eliminatory and point-based championships (such as UEFA and La Liga, respectively);
+- [ ] **Increase K for matches between great rivals and classic matches**. So when Real Madrid and Barcelona play a match against each other, K could be increased by X, because this match would be more important than Real Madrid against Villarreal;
+- [ ] **Multiple names for teams**: Some teams change names during its history, and connecting multiple names for the same team could help have a more accurate historical rating. E.g.: São Paulo FC, which until 1935 was known as São Paulo da Floresta;
+- [ ] **Decrease points for teams that didn't play for X months**. So that when a team is demoted to a lesser competitive league, his rating will be affected for how long he stays there.
+
 ## LICENSE
 ```
 The MIT License (MIT)
