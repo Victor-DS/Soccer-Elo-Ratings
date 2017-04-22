@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import java.util.ArrayList;
 import java.util.Collections;
 
 public class League implements Serializable, Comparable<League>
@@ -29,6 +30,7 @@ public class League implements Serializable, Comparable<League>
      * 
      */
     public League() {
+        matches = new ArrayList<>();
     }
 
     /**
@@ -86,6 +88,10 @@ public class League implements Serializable, Comparable<League>
     public League withMatches(List<Match> matches) {
         setMatches(matches);
         return this;
+    }
+    
+    public void addMatch(Match m) {
+        matches.add(m);
     }
 
     public int getYear() {
