@@ -39,6 +39,7 @@ import victor.santiago.model.simulation.TeamPerformance;
 public class Simulator {
     
     private SimulatedLeague sLeague;
+    private boolean updateRatings;
 
     public Simulator() {
         sLeague = new SimulatedLeague();
@@ -53,7 +54,23 @@ public class Simulator {
     }
     
     public Map<String, TeamPerformance> simulate() {
-        return sLeague.simulate();
+        return sLeague.simulate(updateRatings);
+    }
+
+    public SimulatedLeague getsLeague() {
+        return sLeague;
+    }
+
+    public void setsLeague(SimulatedLeague sLeague) {
+        this.sLeague = sLeague;
+    }
+
+    public boolean isUpdateRatings() {
+        return updateRatings;
+    }
+
+    public void setUpdateRatings(boolean updateRatings) {
+        this.updateRatings = updateRatings;
     }
     
     /**
@@ -65,8 +82,10 @@ public class Simulator {
     public List<Map<String, TeamPerformance>> simulate(int n) {
         List<Map<String, TeamPerformance>> simulations = new ArrayList<>();
             
-        while(n > 0)
+        while(n > 0) {
             simulations.add(simulate());
+            n--;
+        }
         
         return simulations;
     }
@@ -99,17 +118,17 @@ public class Simulator {
             return this;
         }
         
+        public Builder updateRatings(boolean updateRatings) {
+            instance.setUpdateRatings(updateRatings);
+            return this;
+        }
+        
         public Map<String, TeamPerformance> simulate() {
-            return instance.getSimulatedLeague().simulate();
+            return instance.simulate();
         }
         
         public List<Map<String, TeamPerformance>> simulate(int n) {
-            List<Map<String, TeamPerformance>> simulations = new ArrayList<>();
-            
-            while(n > 0)
-                simulations.add(instance.getSimulatedLeague().simulate());
-            
-            return simulations;
+            return instance.simulate(n);
         }
         
         public Simulator build() {
