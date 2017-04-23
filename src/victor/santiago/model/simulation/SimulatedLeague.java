@@ -122,7 +122,7 @@ public class SimulatedLeague { //TODO Builder
         this.matches.add(match);
     }
     
-    public Map<String, TeamPerformance> simulate() {
+    public Map<String, TeamPerformance> simulate(boolean updateRatings) {
         Map<String, Team> teams = new HashMap<>(this.teams);
         Map<String, TeamPerformance> perfomances = new HashMap<>();
         EloHelper elo = new EloHelper(teams, K, false);
@@ -153,9 +153,7 @@ public class SimulatedLeague { //TODO Builder
                     winningRange >= homeProbability - tieMargin) { //Tie
                 m.setAwayGoals(0);
                 m.setHomeGoals(0);
-                
-                elo.updateRatings(m);
-                
+                                
                 homePerformance.increaseTie();
                 awayPerformance.increaseTie();
             } else if(winningRange < homeProbability - tieMargin) { //Home win
@@ -169,8 +167,6 @@ public class SimulatedLeague { //TODO Builder
                 m.setHomeGoals(goalDiff);
                 m.setAwayGoals(0);
                 
-                elo.updateRatings(m);
-                
                 homePerformance.increaseGoalsBy(goalDiff);
                 awayPerformance.increaseGoalsBy(-goalDiff);
             } else { //Away win
@@ -183,11 +179,13 @@ public class SimulatedLeague { //TODO Builder
                 m.setHomeGoals(0);
                 m.setAwayGoals(goalDiff);
                 
-                elo.updateRatings(m);
                 
                 homePerformance.increaseGoalsBy(-goalDiff);
                 awayPerformance.increaseGoalsBy(goalDiff);
             }
+            
+            if(updateRatings)
+                elo.updateRatings(m);
             
             perfomances.put(homePerformance.getTeam(), homePerformance);
             perfomances.put(awayPerformance.getTeam(), awayPerformance);
