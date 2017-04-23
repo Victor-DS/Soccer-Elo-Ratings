@@ -100,6 +100,11 @@ public class TeamPerformance implements Comparable<TeamPerformance>{
 
     @Override
     public int compareTo(TeamPerformance o) {
+        if(this.points == o.getPoints())
+            if(this.wins == o.getWins())
+                return Integer.compare(this.goals, o.getGoals());
+            else return Integer.compare(this.wins, o.getWins());
+        
         return Integer.compare(this.points, o.getPoints());
     }
     
