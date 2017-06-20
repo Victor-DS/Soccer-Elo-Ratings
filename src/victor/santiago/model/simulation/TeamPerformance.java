@@ -36,6 +36,15 @@ public class TeamPerformance implements Comparable<TeamPerformance>{
         this.team = team;
     }
 
+    public TeamPerformance(String team, int wins, int losses, int ties, int points, int goals) {
+        this.team = team;
+        this.wins = wins;
+        this.losses = losses;
+        this.ties = ties;
+        this.points = points;
+        this.goals = goals;
+    }
+
     public String getTeam() {
         return team;
     }
