@@ -21,17 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package victor.santiago.model;
+package victor.santiago.soccer.elo.ratings.model;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 /**
  *
  * @author Victor Santiago
  */
+@Data
+@AllArgsConstructor
 public class EloRating {
     
     private Date date;
@@ -42,29 +47,8 @@ public class EloRating {
         rating = 1500;
     }
 
-    public EloRating(Date date, double rating) {
-        this.date = date;
-        this.rating = rating;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-    
     public String getDateAsString() {
         DateFormat df = new SimpleDateFormat("d-MMM-yyyy", Locale.US);
         return df.format(date);
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public double getRating() {
-        return rating;
-    }
-
-    public void setRating(double rating) {
-        this.rating = rating;
     }
 }

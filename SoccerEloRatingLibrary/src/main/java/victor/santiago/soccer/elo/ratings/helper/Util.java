@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package victor.santiago.model.helper;
+package victor.santiago.soccer.elo.ratings.helper;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

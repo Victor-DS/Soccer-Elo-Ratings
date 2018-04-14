@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package victor.santiago.model.helper;
+package victor.santiago.soccer.elo.ratings.helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,15 +29,24 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import victor.santiago.model.EloRating;
-import victor.santiago.model.League;
-import victor.santiago.model.Match;
-import victor.santiago.model.Team;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+import victor.santiago.soccer.elo.ratings.model.EloRating;
+import victor.santiago.soccer.elo.ratings.model.League;
+import victor.santiago.soccer.elo.ratings.model.Match;
+import victor.santiago.soccer.elo.ratings.model.Team;
 
 /**
+ * Helper class to calculate Elo ratings.
  *
  * @author Victor Santiago
  */
+@Data
+@Builder
+@AllArgsConstructor
 public class EloHelper {
     
     private Map<String, Team> teams;
@@ -50,24 +59,6 @@ public class EloHelper {
         regressTowardMean = true;
     }
 
-    public EloHelper(Map<String, Team> teams, double K, boolean regress) {
-        this.teams = teams;
-        this.K = K;
-        regressTowardMean = regress;
-    }
-
-    public boolean willRegressTowardMean() {
-        return regressTowardMean;
-    }
-
-    public void setRegressTowardMean(boolean regressTowardMean) {
-        this.regressTowardMean = regressTowardMean;
-    }
-
-    public Map<String, Team> getTeams() {
-        return teams;
-    }
-    
     public Team getTeam(String name) {
         Team t = teams.get(name);
         
@@ -77,18 +68,15 @@ public class EloHelper {
         return t;
     }
 
-    public void setTeams(Map<String, Team> teams) {
-        this.teams = teams;
-    }
-    
     public ArrayList<Team> getTeamsSorted(boolean desc) {
         ArrayList<Team> teamList = new ArrayList<>(teams.values());
         
         Collections.sort(teamList);
         
-        if(desc)
+        if (desc) {
             Collections.reverse(teamList);
-        
+        }
+
         return teamList;
     }
     
@@ -96,17 +84,10 @@ public class EloHelper {
         teams.put(t.getName(), t);
     }
 
-    public double getK() {
-        return K;
-    }
-
-    public void setK(double K) {
-        this.K = K;
-    }
-    
     public void updateRatingsWithMatches(ArrayList<Match> matches) {
-        for(Match m : matches)
+        for(Match m : matches) {
             updateRatings(m);
+        }
     }
     
     public void updateRatings(ArrayList<League> leagues) {
@@ -176,8 +157,7 @@ public class EloHelper {
     }
     
     public double getWinningProbability(Match m) {
-        return getWinningProbability(getTeam(m.getHome()), 
-                getTeam(m.getAway()));
+        return getWinningProbability(getTeam(m.getHome()), getTeam(m.getAway()));
     }
     
     public double getWinningProbability(Team a, Team b) {
@@ -197,22 +177,23 @@ public class EloHelper {
         List<Team> ts = getTeamsSorted(false);
         long total = 0;
         
-        for(Team t : ts)
+        for(Team t : ts) {
             total += t.getLastRating().getRating();
-        
+        }
+
         return total / ((double) ts.size());
     }
     
     private void regressTowardsTheMean() {
-        for(Team t : getTeamsSorted(true))
+        for(Team t : getTeamsSorted(true)) {
             regressTowardsTheMean(t);
+        }
     }
     
     private void regressTowardsTheMean(Team t) {
         EloRating er = t.getLastRating();
         double reduce = ((er.getRating() - 1505.00) / 3.00);
-        t.addRating(new EloRating(Util.addOneDayToDate(er.getDate()), 
-                er.getRating()-reduce));
+        t.addRating(new EloRating(Util.addOneDayToDate(er.getDate()), er.getRating()-reduce));
         setTeam(t);
     }
     

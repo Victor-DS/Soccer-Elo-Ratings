@@ -21,26 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package victor.santiago.controller;
+package victor.santiago.soccer.elo.ratings.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import victor.santiago.model.League;
-import victor.santiago.model.Match;
-import victor.santiago.model.Team;
-import victor.santiago.model.helper.Util;
-import victor.santiago.model.simulation.SimulatedLeague;
-import victor.santiago.model.simulation.TeamPerformance;
+
+import lombok.Builder;
+import lombok.Data;
+
+import victor.santiago.soccer.elo.ratings.model.SimulatedLeague;
+import victor.santiago.soccer.elo.ratings.model.TeamPerformance;
 
 /**
  *
  * @author Victor Santiago
  */
+@Data
+@Builder
 public class Simulator {
     
     private SimulatedLeague sLeague;
@@ -51,42 +49,10 @@ public class Simulator {
         sLeague = new SimulatedLeague();
     }
 
-    public SimulatedLeague getSimulatedLeague() {
-        return sLeague;
-    }
-
-    public void setSimulatedLeague(SimulatedLeague sLeague) {
-        this.sLeague = sLeague;
-    }
-    
     public Map<String, TeamPerformance> simulate() {
         return sLeague.simulate(updateRatings, useRealResults);
     }
 
-    public SimulatedLeague getsLeague() {
-        return sLeague;
-    }
-
-    public void setsLeague(SimulatedLeague sLeague) {
-        this.sLeague = sLeague;
-    }
-
-    public boolean isUpdateRatings() {
-        return updateRatings;
-    }
-
-    public void setUpdateRatings(boolean updateRatings) {
-        this.updateRatings = updateRatings;
-    }
-
-    public boolean useRealResults() {
-        return useRealResults;
-    }
-
-    public void setUseRealResults(boolean useRealResults) {
-        this.useRealResults = useRealResults;
-    }
-    
     /**
      * Simulates a given league N times
      * 
@@ -103,71 +69,5 @@ public class Simulator {
         
         return simulations;
     }
-    
-    public static class Builder {
-        
-        private Simulator instance;
-        private Gson gson;
 
-        public Builder() {
-            instance = new Simulator();
-            
-            gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .setDateFormat("MMM dd, yyyy HH:mm:ss aa")
-                .create();
-
-        }
-        
-        public Builder setTeams(Map<String, Team> teams) {
-            instance.getSimulatedLeague().setTeams(teams);
-            return this;
-        }
-        
-        public Builder setK(int K) {
-            instance.getSimulatedLeague().setK(K);
-            return this;
-        }
-        
-        public Builder setTieMargin(int margin) {
-            instance.getSimulatedLeague().setTieMargin(margin);
-            return this;
-        }
-        
-        public Builder setMatches(List<Match> matches) {
-            instance.getSimulatedLeague().setMatches(matches);
-            return this;
-        }
-        
-        public Builder setMatches(String path) throws IOException {
-            ArrayList<League> leagues = gson.fromJson(Util.readFile(path), 
-                new TypeToken<ArrayList<League>>(){}.getType());
-            
-            instance.getSimulatedLeague().setMatches(leagues.get(0).getMatches());
-            return this;
-        }
-        
-        public Builder updateRatings(boolean updateRatings) {
-            instance.setUpdateRatings(updateRatings);
-            return this;
-        }
-        
-        public Builder useRealResults(boolean results) {
-            instance.setUseRealResults(results);
-            return this;
-        }
-        
-        public Map<String, TeamPerformance> simulate() {
-            return instance.simulate();
-        }
-        
-        public List<Map<String, TeamPerformance>> simulate(int n) {
-            return instance.simulate(n);
-        }
-        
-        public Simulator build() {
-            return instance;
-        }
-    }
-    
 }
