@@ -21,46 +21,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package victor.santiago.model.helper;
+package victor.santiago.soccer.elo.ratings.controller;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import lombok.Builder;
+import lombok.Data;
+
+import victor.santiago.soccer.elo.ratings.model.SimulatedLeague;
+import victor.santiago.soccer.elo.ratings.model.TeamPerformance;
 
 /**
- * Collection of Helper methods
  *
  * @author Victor Santiago
  */
-public class Util {
+@Data
+@Builder
+public class Simulator {
     
-    public static String readFile(String path) 
-            throws IOException{
-        return readFile(path, StandardCharsets.UTF_8);
+    private SimulatedLeague sLeague;
+    private boolean updateRatings;
+    private boolean useRealResults;
+
+    public Simulator() {
+        sLeague = new SimulatedLeague();
     }
- 
-    public static String readFile(String path, Charset encoding) 
-            throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, encoding);
+
+    public Map<String, TeamPerformance> simulate() {
+        return sLeague.simulate(updateRatings, useRealResults);
     }
-    
-    public static Date addOneDayToDate(Date date) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.add(Calendar.DATE, 1);
+
+    /**
+     * Simulates a given league N times
+     * 
+     * @param n Number of times to simulate a league
+     * @return A list of team performances through all the leagues
+     */
+    public List<Map<String, TeamPerformance>> simulate(int n) {
+        List<Map<String, TeamPerformance>> simulations = new ArrayList<>();
+            
+        while(n > 0) {
+            simulations.add(simulate());
+            n--;
+        }
         
-        return c.getTime();
+        return simulations;
     }
-    
-    public static String getDateAsString(Date d) {
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-        return df.format(d);
-    }
+
 }

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package victor.santiago.model.simulation;
+package victor.santiago.soccer.elo.ratings.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,24 +29,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import victor.santiago.model.Match;
-import victor.santiago.model.Team;
-import victor.santiago.model.helper.EloHelper;
+
+import lombok.Builder;
+import lombok.Data;
+
+import victor.santiago.soccer.elo.ratings.helper.EloHelper;
 
 /**
  *
  * @author Victor Santiago
  */
-public class SimulatedLeague { //TODO Builder
-    
+@Data
+@Builder
+public class SimulatedLeague {
+
+    private static final Random RANDOM = new Random();
+
     private List<Match> matches;
     private Map<String, Team> teams;
     
     //% above or bellow the probability which we can consider a tie.
     private int tieMargin;
     private int K;
-    
-    private final Random r;
 
     private EloHelper elo;
     private Map<String, TeamPerformance> perfomances;
@@ -56,8 +60,6 @@ public class SimulatedLeague { //TODO Builder
         this.tieMargin = tieMargin;
         matches = new ArrayList<>();
         this.K = K;
-        
-        r = new Random();
     }
 
     public SimulatedLeague(Map<String, Team> teams) {
@@ -65,8 +67,6 @@ public class SimulatedLeague { //TODO Builder
         matches = new ArrayList<>();
         tieMargin = 5;
         K = 20;
-        
-        r = new Random();
     }
 
     public SimulatedLeague() {
@@ -74,8 +74,6 @@ public class SimulatedLeague { //TODO Builder
         matches = new ArrayList<>();
         tieMargin = 5;
         K = 20;
-        
-        r = new Random();
     }
 
     public SimulatedLeague(List<Match> matches, Map<String, Team> teams, 
@@ -84,42 +82,12 @@ public class SimulatedLeague { //TODO Builder
         this.teams = teams;
         this.tieMargin = tieMargin;
         this.K = K;
-
-        r = new Random();
     }
 
     public int getTieMargin() {
         return tieMargin;
     }
 
-    public void setTieMargin(int tieMargin) {
-        this.tieMargin = tieMargin;
-    }
-
-    public List<Match> getMatches() {
-        return matches;
-    }
-
-    public void setMatches(List<Match> matches) {
-        this.matches = matches;
-    }
-
-    public Map<String, Team> getTeams() {
-        return teams;
-    }
-
-    public void setTeams(Map<String, Team> teams) {
-        this.teams = teams;
-    }
-
-    public int getK() {
-        return K;
-    }
-
-    public void setK(int K) {
-        this.K = K;
-    }
-    
     public void addMatch(Match match) {
         this.matches.add(match);
     }
@@ -156,7 +124,7 @@ public class SimulatedLeague { //TODO Builder
             awayPerformance = perfomances.containsKey(m.getAway()) ? 
                     perfomances.get(m.getAway()) : new TeamPerformance(m.getAway());
             
-            winningRange = r.nextInt(101);
+            winningRange = RANDOM.nextInt(101);
             homeProbability = elo.getWinningProbability(m);
             awayProbability = 100 - homeProbability;
             
@@ -215,10 +183,10 @@ public class SimulatedLeague { //TODO Builder
     private Map<String, TeamPerformance> realResults(List<Match> matches) {
         TeamPerformance homePerformance, awayPerformance;
         for(Match m : matches) {
-            homePerformance = perfomances.containsKey(m.getHome()) ? 
-                    perfomances.get(m.getHome()) : new TeamPerformance(m.getHome());
-            awayPerformance = perfomances.containsKey(m.getAway()) ? 
-                    perfomances.get(m.getAway()) : new TeamPerformance(m.getAway());
+            homePerformance = perfomances.containsKey(m.getHome())
+                    ? perfomances.get(m.getHome()) : new TeamPerformance(m.getHome());
+            awayPerformance = perfomances.containsKey(m.getAway())
+                    ? perfomances.get(m.getAway()) : new TeamPerformance(m.getAway());
                 
             int increaseGoals = Math.abs(m.getHomeGoals() - m.getAwayGoals());
                 
@@ -251,10 +219,12 @@ public class SimulatedLeague { //TODO Builder
     private List<Match> getPastMatches(List<Match> matches) {
         List<Match> real = new ArrayList<>();
         
-        for(Match m : matches)
-            if(m.getAwayGoals() != -1 && m.getHomeGoals() != -1)
+        for(Match m : matches) {
+            if(m.getAwayGoals() != -1 && m.getHomeGoals() != -1) {
                 real.add(m);
-        
+            }
+        }
+
         return real;
     }
     

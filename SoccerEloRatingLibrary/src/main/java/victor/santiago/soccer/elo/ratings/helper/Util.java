@@ -21,50 +21,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package victor.santiago.model;
+package victor.santiago.soccer.elo.ratings.helper;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 /**
+ * Collection of Helper methods
  *
  * @author Victor Santiago
  */
-public class EloRating {
+public class Util {
     
-    private Date date;
-    private double rating;
-
-    public EloRating() {
-        date = new Date();
-        rating = 1500;
+    public static String readFile(String path) 
+            throws IOException{
+        return readFile(path, StandardCharsets.UTF_8);
     }
-
-    public EloRating(Date date, double rating) {
-        this.date = date;
-        this.rating = rating;
-    }
-
-    public Date getDate() {
-        return date;
+ 
+    public static String readFile(String path, Charset encoding) 
+            throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, encoding);
     }
     
-    public String getDateAsString() {
-        DateFormat df = new SimpleDateFormat("d-MMM-yyyy", Locale.US);
-        return df.format(date);
+    public static Date addOneDayToDate(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DATE, 1);
+        
+        return c.getTime();
     }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public double getRating() {
-        return rating;
-    }
-
-    public void setRating(double rating) {
-        this.rating = rating;
+    
+    public static String getDateAsString(Date d) {
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+        return df.format(d);
     }
 }

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package victor.santiago.model;
+package victor.santiago.soccer.elo.ratings.model;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,10 +30,11 @@ import java.io.IOException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 
-/**
- *
- * @author Victor Santiago
- */
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class Team implements Comparable<Team> {
     
     private String name;
@@ -49,23 +50,6 @@ public class Team implements Comparable<Team> {
         ratings = new ArrayList<>();
     }
 
-    public Team(String name, ArrayList<EloRating> ratings) {
-        this.name = name;
-        this.ratings = ratings;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public ArrayList<EloRating> getRatings() {
-        return ratings;
-    }
-    
     public EloRating getLastRating() {
         int lastIndex = ratings.size() - 1;
 
@@ -74,10 +58,6 @@ public class Team implements Comparable<Team> {
         return ratings.get(lastIndex);
     }
 
-    public void setRatings(ArrayList<EloRating> ratings) {
-        this.ratings = ratings;
-    }
-    
     public void addRating(EloRating rating) {
         this.ratings.add(rating);
     }

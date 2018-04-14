@@ -21,23 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package victor.santiago.controller;
+package victor.santiago.soccer.elo.ratings.controller;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import victor.santiago.model.Team;
-import victor.santiago.model.simulation.TeamPerformance;
+
+import lombok.Data;
+
+import victor.santiago.soccer.elo.ratings.model.TeamPerformance;
 
 /**
  * Class responsible for generating statistics based on simulations.
  *
  * @author Victor Santiago
  */
+@Data
 public class Statistics {
     
     private boolean hasStatistics;
@@ -56,11 +57,12 @@ public class Statistics {
     
     public void generateStatistics() {
         List<TeamPerformance> currentPerformances;
-        
+
+        int size;
         for(Map<String, TeamPerformance> league : leaguePerformances) {
             currentPerformances = new ArrayList<>(league.values());
             Collections.sort(currentPerformances);
-            int size = currentPerformances.size();
+            size = currentPerformances.size();
             
             increaseChampion(currentPerformances.get(size-1));
             

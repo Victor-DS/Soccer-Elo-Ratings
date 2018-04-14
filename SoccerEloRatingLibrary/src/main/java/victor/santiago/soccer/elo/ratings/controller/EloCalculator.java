@@ -21,45 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package victor.santiago.controller;
+package victor.santiago.soccer.elo.ratings.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import victor.santiago.model.League;
-import victor.santiago.model.Match;
-import victor.santiago.model.Team;
-import victor.santiago.model.helper.EloHelper;
-import victor.santiago.model.simulation.SimulatedLeague;
-import victor.santiago.model.helper.Util;
+
+import lombok.Builder;
+import lombok.Data;
+
+import victor.santiago.soccer.elo.ratings.helper.EloHelper;
+import victor.santiago.soccer.elo.ratings.helper.Util;
+import victor.santiago.soccer.elo.ratings.model.League;
+import victor.santiago.soccer.elo.ratings.model.Match;
+import victor.santiago.soccer.elo.ratings.model.SimulatedLeague;
+import victor.santiago.soccer.elo.ratings.model.Team;
 
 /**
  *
  * @author Victor Santiago
  */
+@Data
+@Builder
 public class EloCalculator {
             
     private ArrayList<League> leagues;
     private EloHelper eHelper;
     
-    private Gson gson;
+    private static final Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .setDateFormat("MMM dd, yyyy HH:mm:ss aa")
+            .create();
     
-    public EloCalculator() {
-        leagues = new ArrayList<>();
-        eHelper = new EloHelper();
-        
-        gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .setDateFormat("MMM dd, yyyy HH:mm:ss aa")
-                .create();
-    }
-
     public double getK() {
         return eHelper.getK();
     }
@@ -69,26 +69,15 @@ public class EloCalculator {
     }
 
     public boolean willRegressTowardMean() {
-        return eHelper.willRegressTowardMean();
+        return eHelper.isRegressTowardMean();
     }
 
     public void setRegressTowardMean(boolean regressTowardMean) {
         eHelper.setRegressTowardMean(regressTowardMean);
     }
 
-    public ArrayList<League> getLeagues() {
-        return leagues;
-    }
-
-    public void setLeagues(ArrayList<League> leagues) {
-        this.leagues = leagues;
-        Collections.sort(leagues);
-    }
-    
     public void addLeaguesFromJson(String JSON) {
-        this.leagues.addAll(gson.fromJson(JSON, 
-                new TypeToken<ArrayList<League>>(){}.getType()));
-        //Collections.sort(leagues);
+        this.leagues.addAll(gson.fromJson(JSON, new TypeToken<ArrayList<League>>(){}.getType()));
     }
     
     public void addLeaguesFromJsonFile(String path) throws IOException {
@@ -98,9 +87,8 @@ public class EloCalculator {
     public void addLeaguesFromJsonFile(String path, double k) throws IOException {        
         String json = Util.readFile(path);
         
-        ArrayList<League> newLeagues = gson.fromJson(json, 
-                new TypeToken<ArrayList<League>>(){}.getType());
-        
+        ArrayList<League> newLeagues = gson.fromJson(json, new TypeToken<ArrayList<League>>(){}.getType());
+
         for(int i = 0; i < newLeagues.size(); i++) {
             for(int j = 0; j < newLeagues.get(i).getMatches().size(); j++) {
                 newLeagues.get(i).getMatches().get(j).setCustomK(k);
@@ -162,12 +150,14 @@ public class EloCalculator {
     public ArrayList<Match> getMatches(boolean sorted) {
         ArrayList<Match> matches = new ArrayList<>();
         
-        for(League l : leagues)
+        for(League l : leagues) {
             matches.addAll(l.getMatches());
-        
-        if(sorted)
+        }
+
+        if(sorted) {
             Collections.sort(matches);
-        
+        }
+
         return matches;
     }
     
@@ -199,43 +189,5 @@ public class EloCalculator {
     public double getWinProbability(Match m) {
         return eHelper.getWinningProbability(m);
     }
-    
-    public static class Builder {
-        
-        private EloCalculator instance;
 
-        public Builder() {
-            instance = new EloCalculator();
-        }  
-        
-        public Builder setK(double K) {
-            instance.setK(K);
-            return this;
-        }
-        
-        public Builder setRegressTowardMean(boolean regressTowardMean) {
-            instance.setRegressTowardMean(regressTowardMean);
-            return this;
-        }
-        
-        public Builder addLeagues(String path) throws IOException {
-            instance.addLeaguesFromJsonFile(path);
-            return this;
-        }
-        
-        public Builder addLeagues(String path, double k) throws IOException {
-            instance.addLeaguesFromJsonFile(path, k);
-            return this;
-        }
-        
-        public Builder setTeams(String path) throws IOException {
-            instance.setTeamsFromJsonFile(path);
-            return this;
-        }
-        
-        public EloCalculator build() {
-            return instance;
-        }
-    }
-    
 }
