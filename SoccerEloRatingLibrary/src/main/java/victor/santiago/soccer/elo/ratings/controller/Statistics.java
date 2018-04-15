@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package victor.santiago.soccer.elo.ratings.controller;
 
 import java.util.ArrayList;
@@ -59,17 +60,17 @@ public class Statistics {
         List<TeamPerformance> currentPerformances;
 
         int size;
-        for(Map<String, TeamPerformance> league : leaguePerformances) {
+        for (Map<String, TeamPerformance> league : leaguePerformances) {
             currentPerformances = new ArrayList<>(league.values());
             Collections.sort(currentPerformances);
             size = currentPerformances.size();
             
-            increaseChampion(currentPerformances.get(size-1));
+            increaseChampion(currentPerformances.get(size - 1));
             
-            increaseTop4(currentPerformances.get(size-1));
-            increaseTop4(currentPerformances.get(size-2));
-            increaseTop4(currentPerformances.get(size-3));
-            increaseTop4(currentPerformances.get(size-4));
+            increaseTop4(currentPerformances.get(size - 1));
+            increaseTop4(currentPerformances.get(size - 2));
+            increaseTop4(currentPerformances.get(size - 3));
+            increaseTop4(currentPerformances.get(size - 4));
 
             increaseBottom4(currentPerformances.get(0));
             increaseBottom4(currentPerformances.get(1));
@@ -79,7 +80,7 @@ public class Statistics {
     }
     
     private void increaseChampion(TeamPerformance t) {
-        if(!champion.containsKey(t.getTeam())) {
+        if (!champion.containsKey(t.getTeam())) {
             champion.put(t.getTeam(), 1);
             return;
         }
@@ -90,7 +91,7 @@ public class Statistics {
     }
     
     private void increaseTop4(TeamPerformance t) {
-        if(!top4.containsKey(t.getTeam())) {
+        if (!top4.containsKey(t.getTeam())) {
             top4.put(t.getTeam(), 1);
             return;
         }
@@ -101,7 +102,7 @@ public class Statistics {
     }
     
     private void increaseBottom4(TeamPerformance t) {
-        if(!bottom4.containsKey(t.getTeam())) {
+        if (!bottom4.containsKey(t.getTeam())) {
             bottom4.put(t.getTeam(), 1);
             return;
         }
@@ -112,23 +113,26 @@ public class Statistics {
     }
     
     public double getChampionshipProbability(String team) {
-        if(!champion.containsKey(team))
+        if (!champion.containsKey(team)) {
             return 0.00;
-        
+        }
+
         return ((double) champion.get(team) / (double) leaguePerformances.size()) * 100;
     }
     
     public double getTop4Probability(String team) {
-        if(!top4.containsKey(team))
+        if (!top4.containsKey(team)) {
             return 0.00;
-        
+        }
+
         return ((double) top4.get(team) / (double) leaguePerformances.size()) * 100;
     }
     
     public double getBottom4Probability(String team) {
-        if(!bottom4.containsKey(team))
+        if (!bottom4.containsKey(team)) {
             return 0.00;
-        
+        }
+
         return ((double) bottom4.get(team) / (double) leaguePerformances.size()) * 100;
     }
     
@@ -136,9 +140,10 @@ public class Statistics {
         Map<String, Double> result = new HashMap<>();
         List<String> teams = new ArrayList<>(leaguePerformances.get(0).keySet());
         
-        for(String team : teams)
+        for (String team : teams) {
             result.put(team, getChampionshipProbability(team));
-        
+        }
+
         return result;
     }
 
@@ -146,9 +151,10 @@ public class Statistics {
         Map<String, Double> result = new HashMap<>();
         List<String> teams = new ArrayList<>(leaguePerformances.get(0).keySet());
         
-        for(String team : teams)
+        for (String team : teams) {
             result.put(team, getTop4Probability(team));
-        
+        }
+
         return result;
     }
 
@@ -156,9 +162,10 @@ public class Statistics {
         Map<String, Double> result = new HashMap<>();
         List<String> teams = new ArrayList<>(leaguePerformances.get(0).keySet());
         
-        for(String team : teams)
+        for (String team : teams) {
             result.put(team, getBottom4Probability(team));
-        
+        }
+
         return result;
     }
     

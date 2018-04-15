@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package victor.santiago.soccer.elo.ratings.model;
 
 import java.io.BufferedWriter;
@@ -53,7 +54,9 @@ public class Team implements Comparable<Team> {
     public EloRating getLastRating() {
         int lastIndex = ratings.size() - 1;
 
-        if(lastIndex < 0) return new EloRating();
+        if (lastIndex < 0) {
+            return new EloRating();
+        }
         
         return ratings.get(lastIndex);
     }
@@ -69,11 +72,11 @@ public class Team implements Comparable<Team> {
                 .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
     }
     
-    public void exportToCSV(String filePath) throws IOException {
+    public void exportToCsv(String filePath) throws IOException {
         export(filePath, ",");
     }
     
-    public void exportToTSV(String filePath) throws IOException {
+    public void exportToTsv(String filePath) throws IOException {
         export(filePath, "	");
     }
     
@@ -84,7 +87,7 @@ public class Team implements Comparable<Team> {
         sb.append("rating");
         sb.append(System.lineSeparator());
         
-        for(EloRating elo : ratings) {
+        for (EloRating elo : ratings) {
             sb.append(elo.getDateAsString());
             sb.append(separator);
             sb.append((int) elo.getRating());

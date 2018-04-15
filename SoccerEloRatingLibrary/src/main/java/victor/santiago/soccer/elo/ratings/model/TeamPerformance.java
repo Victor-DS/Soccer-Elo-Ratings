@@ -21,16 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package victor.santiago.soccer.elo.ratings.model;
 
 /**
  *
  * @author Victor Santiago
  */
-public class TeamPerformance implements Comparable<TeamPerformance>{
+public class TeamPerformance implements Comparable<TeamPerformance> {
     
     private String team;
-    private int wins, losses, ties, points, goals;
+    private int wins;
+    private int losses;
+    private int ties;
+    private int points;
+    private int goals;
 
     public TeamPerformance(String team) {
         this.team = team;
@@ -109,11 +114,14 @@ public class TeamPerformance implements Comparable<TeamPerformance>{
 
     @Override
     public int compareTo(TeamPerformance o) {
-        if(this.points == o.getPoints())
-            if(this.wins == o.getWins())
+        if (this.points == o.getPoints()) {
+            if (this.wins == o.getWins()) {
                 return Integer.compare(this.goals, o.getGoals());
-            else return Integer.compare(this.wins, o.getWins());
-        
+            } else {
+                return Integer.compare(this.wins, o.getWins());
+            }
+        }
+
         return Integer.compare(this.points, o.getPoints());
     }
     

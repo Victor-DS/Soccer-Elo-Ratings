@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package victor.santiago.soccer.elo.ratings.helper;
 
 import java.util.ArrayList;
@@ -50,22 +51,17 @@ import victor.santiago.soccer.elo.ratings.model.Team;
 public class EloHelper {
     
     private Map<String, Team> teams;
-    private double K;
+    private double k;
     private boolean regressTowardMean;
 
     public EloHelper() {
-        K = 20;
+        k = 20;
         teams = new HashMap<>();
         regressTowardMean = true;
     }
 
     public Team getTeam(String name) {
-        Team t = teams.get(name);
-        
-        if(t == null)
-            return new Team(name);
-        
-        return t;
+        return teams.getOrDefault(name, new Team(name));
     }
 
     public ArrayList<Team> getTeamsSorted(boolean desc) {
@@ -85,18 +81,20 @@ public class EloHelper {
     }
 
     public void updateRatingsWithMatches(ArrayList<Match> matches) {
-        for(Match m : matches) {
+        for (Match m : matches) {
             updateRatings(m);
         }
     }
     
     public void updateRatings(ArrayList<League> leagues) {
-        for(League l : leagues) {
-            for(Match m : l.getMatches())
+        for (League l : leagues) {
+            for (Match m : l.getMatches()) {
                 updateRatings(m);
-            
-            if(regressTowardMean) 
+            }
+
+            if (regressTowardMean) {
                 regressTowardsTheMean();
+            }
         }
     }
     
@@ -131,29 +129,31 @@ public class EloHelper {
         double result = getMatchResultValue(m, home);
         double we = getWinningExpectancy(a, b);
         
-        double k = m.hasCustomK() ? m.getCustomK() : K;
+        double k = m.hasCustomK() ? m.getCustomK() : this.k;
         
         return k * gIndex * (result - we);
     }
     
     private double getMatchResultValue(Match m, boolean home) {
-        if(m.getWinner() == null) 
+        if (m.getWinner() == null) {
             return 0.5;
-        else if(m.getWinner().equals(m.getHome()))
+        } else if (m.getWinner().equals(m.getHome())) {
             return home ? 1.0 : 0.0;
-        else
+        } else {
             return home ? 0.0 : 1.0;
+        }
     }
     
     private double getGoalDifferenceIndex(Match m) {
         int diff = Math.abs(m.getHomeGoals() - m.getAwayGoals());
         
-        if(diff == 0 || diff == 1)
+        if (diff == 0 || diff == 1) {
             return 1.00;
-        else if(diff == 2)
+        } else if (diff == 2) {
             return 1.50;
-        
-        return (11.00+ ((double) diff)) / 8.00;
+        }
+
+        return (11.00 + ((double) diff)) / 8.00;
     }
     
     public double getWinningProbability(Match m) {
@@ -166,7 +166,7 @@ public class EloHelper {
     
     private double getWinningExpectancy(Team a, Team b) {
         return 1.00 / 
-                (Math.pow(10.00, (-getRatingDifference(a, b)/400.00)) + 1.00);
+                (Math.pow(10.00, (-getRatingDifference(a, b) / 400.00)) + 1.00);
     }
     
     private double getRatingDifference(Team a, Team b) {
@@ -177,7 +177,7 @@ public class EloHelper {
         List<Team> ts = getTeamsSorted(false);
         long total = 0;
         
-        for(Team t : ts) {
+        for (Team t : ts) {
             total += t.getLastRating().getRating();
         }
 
@@ -185,7 +185,7 @@ public class EloHelper {
     }
     
     private void regressTowardsTheMean() {
-        for(Team t : getTeamsSorted(true)) {
+        for (Team t : getTeamsSorted(true)) {
             regressTowardsTheMean(t);
         }
     }
@@ -193,7 +193,7 @@ public class EloHelper {
     private void regressTowardsTheMean(Team t) {
         EloRating er = t.getLastRating();
         double reduce = ((er.getRating() - 1505.00) / 3.00);
-        t.addRating(new EloRating(Util.addOneDayToDate(er.getDate()), er.getRating()-reduce));
+        t.addRating(new EloRating(Util.addOneDayToDate(er.getDate()), er.getRating() - reduce));
         setTeam(t);
     }
     
