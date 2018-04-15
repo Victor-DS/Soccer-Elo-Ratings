@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package victor.santiago.soccer.elo.ratings.controller;
 
 import com.google.gson.Gson;
@@ -51,21 +52,21 @@ import victor.santiago.soccer.elo.ratings.model.Team;
 @Data
 @Builder
 public class EloCalculator {
-            
-    private ArrayList<League> leagues;
-    private EloHelper eHelper;
-    
-    private static final Gson gson = new GsonBuilder()
+
+    private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .setDateFormat("MMM dd, yyyy HH:mm:ss aa")
             .create();
-    
+
+    private ArrayList<League> leagues;
+    private EloHelper eHelper;
+
     public double getK() {
         return eHelper.getK();
     }
 
-    public void setK(double K) {
-        eHelper.setK(K);
+    public void setK(double k) {
+        eHelper.setK(k);
     }
 
     public boolean willRegressTowardMean() {
@@ -76,8 +77,8 @@ public class EloCalculator {
         eHelper.setRegressTowardMean(regressTowardMean);
     }
 
-    public void addLeaguesFromJson(String JSON) {
-        this.leagues.addAll(gson.fromJson(JSON, new TypeToken<ArrayList<League>>(){}.getType()));
+    public void addLeaguesFromJson(String json) {
+        this.leagues.addAll(GSON.fromJson(json, new TypeToken<ArrayList<League>>(){}.getType()));
     }
     
     public void addLeaguesFromJsonFile(String path) throws IOException {
@@ -87,10 +88,10 @@ public class EloCalculator {
     public void addLeaguesFromJsonFile(String path, double k) throws IOException {        
         String json = Util.readFile(path);
         
-        ArrayList<League> newLeagues = gson.fromJson(json, new TypeToken<ArrayList<League>>(){}.getType());
+        ArrayList<League> newLeagues = GSON.fromJson(json, new TypeToken<ArrayList<League>>(){}.getType());
 
-        for(int i = 0; i < newLeagues.size(); i++) {
-            for(int j = 0; j < newLeagues.get(i).getMatches().size(); j++) {
+        for (int i = 0; i < newLeagues.size(); i++) {
+            for (int j = 0; j < newLeagues.get(i).getMatches().size(); j++) {
                 newLeagues.get(i).getMatches().get(j).setCustomK(k);
             }
         }
@@ -110,8 +111,8 @@ public class EloCalculator {
         return !leagues.isEmpty();
     }
     
-    public void saveLeaguesJSONFile(String path) throws IOException {
-        gson.toJson(this.leagues, new FileWriter(path));
+    public void saveLeaguesJsonFile(String path) throws IOException {
+        GSON.toJson(this.leagues, new FileWriter(path));
     }
 
     public Map<String, Team> getTeams() {
@@ -126,8 +127,8 @@ public class EloCalculator {
         eHelper.setTeams(teams);
     }
     
-    public void setTeamsFromJson(String JSON) {
-        eHelper.setTeams(gson.fromJson(JSON, 
+    public void setTeamsFromJson(String json) {
+        eHelper.setTeams(GSON.fromJson(json,
                 new TypeToken<Map<String, Team>>(){}.getType()));
     }
     
@@ -139,8 +140,8 @@ public class EloCalculator {
         return eHelper.getTeams().get(t);
     }
     
-    public void saveTeamsJSONFile(String path) throws IOException {
-        gson.toJson(eHelper.getTeams(), new FileWriter(path));
+    public void saveTeamsJsonFile(String path) throws IOException {
+        GSON.toJson(eHelper.getTeams(), new FileWriter(path));
     }
     
     public SimulatedLeague simulateLeague(League l) {
@@ -150,11 +151,11 @@ public class EloCalculator {
     public ArrayList<Match> getMatches(boolean sorted) {
         ArrayList<Match> matches = new ArrayList<>();
         
-        for(League l : leagues) {
+        for (League l : leagues) {
             matches.addAll(l.getMatches());
         }
 
-        if(sorted) {
+        if (sorted) {
             Collections.sort(matches);
         }
 
@@ -170,9 +171,11 @@ public class EloCalculator {
      * false if there are no League/Matches left to calculate the ratings.
      */
     public boolean calculateRatings() {
-        if(!hasLeagues()) return false;
+        if (!hasLeagues()) {
+            return false;
+        }
 
-//        eHelper.updateRatings(leagues);
+        //eHelper.updateRatings(leagues);
         eHelper.updateRatingsWithMatches(getMatches(true));
 
         leagues.clear();

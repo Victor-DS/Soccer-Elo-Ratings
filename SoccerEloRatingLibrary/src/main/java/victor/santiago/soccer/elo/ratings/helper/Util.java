@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package victor.santiago.soccer.elo.ratings.helper;
 
 import java.io.IOException;
@@ -39,9 +40,11 @@ import java.util.Date;
  * @author Victor Santiago
  */
 public class Util {
+
+    private Util() { }
     
     public static String readFile(String path) 
-            throws IOException{
+            throws IOException {
         return readFile(path, StandardCharsets.UTF_8);
     }
  

@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package victor.santiago.soccer.elo.ratings.controller;
 
 import java.util.ArrayList;
@@ -62,7 +63,7 @@ public class Simulator {
     public List<Map<String, TeamPerformance>> simulate(int n) {
         List<Map<String, TeamPerformance>> simulations = new ArrayList<>();
             
-        while(n > 0) {
+        while (n > 0) {
             simulations.add(simulate());
             n--;
         }

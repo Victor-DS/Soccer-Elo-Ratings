@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package victor.santiago.soccer.elo.ratings.model;
 
 import java.util.ArrayList;
@@ -50,38 +51,38 @@ public class SimulatedLeague {
     
     //% above or bellow the probability which we can consider a tie.
     private int tieMargin;
-    private int K;
+    private int k;
 
     private EloHelper elo;
     private Map<String, TeamPerformance> perfomances;
 
-    public SimulatedLeague(Map<String, Team> teams, int tieMargin, int K) {
+    public SimulatedLeague(Map<String, Team> teams, int tieMargin, int k) {
         this.teams = teams;
         this.tieMargin = tieMargin;
         matches = new ArrayList<>();
-        this.K = K;
+        this.k = k;
     }
 
     public SimulatedLeague(Map<String, Team> teams) {
         this.teams = teams;
         matches = new ArrayList<>();
         tieMargin = 5;
-        K = 20;
+        k = 20;
     }
 
     public SimulatedLeague() {
         teams = new HashMap<>();
         matches = new ArrayList<>();
         tieMargin = 5;
-        K = 20;
+        k = 20;
     }
 
     public SimulatedLeague(List<Match> matches, Map<String, Team> teams, 
-            int tieMargin, int K) {
+            int tieMargin, int k) {
         this.matches = matches;
         this.teams = teams;
         this.tieMargin = tieMargin;
-        this.K = K;
+        this.k = k;
     }
 
     public int getTieMargin() {
@@ -95,30 +96,38 @@ public class SimulatedLeague {
     /**
      * 
      * @param updateRatings Updates a team rating when it wins or loses in a simulated game.
-     * @param useRealResults Uses results from matches that already happened. To flag matches you want to simulate, use -1 on the teams goals. This way you can simulate a league that is halfway through.
+     * @param useRealResults Uses results from matches that already happened.
+     *                       To flag matches you want to simulate, use -1 on the teams goals.
+     *                       This way you can simulate a league that is halfway through.
      * @return  A map with team -> Performance
      */
-    public Map<String, TeamPerformance> simulate(boolean updateRatings, boolean useRealResults) { //TODO This is waaaay too long and complicated. It NEEDS to be refactored.
+    public Map<String, TeamPerformance> simulate(boolean updateRatings, boolean useRealResults) {
+        //TODO This is waaaay too long and complicated. It NEEDS to be refactored.
         HashMap<String, Team> teams = new HashMap<>(this.teams);
         List<Match> matches = new ArrayList<>(this.matches);
         perfomances = new HashMap<>();
-        elo = new EloHelper(teams, K, false);
+        elo = new EloHelper(teams, k, false);
         Collections.sort(matches);
         
         List<Match> real = getPastMatches(matches);
-        if(useRealResults) {
+        if (useRealResults) {
             elo.updateRatingsWithMatches(new ArrayList<Match>(real));
             realResults(real);
         }
         
-        int winningRange, goalDiff;
-        double homeProbability, awayProbability, diffProbability;
-        TeamPerformance homePerformance, awayPerformance;
-        for(Match m : matches) {  
-            if(useRealResults && 
-                    m.getHomeGoals() != -1 && m.getAwayGoals() != -1)
+        int winningRange;
+        int goalDiff;
+        double homeProbability;
+        double awayProbability;
+        double diffProbability;
+        TeamPerformance homePerformance;
+        TeamPerformance awayPerformance;
+        for (Match m : matches) {
+            if (useRealResults &&
+                    m.getHomeGoals() != -1 && m.getAwayGoals() != -1) {
                 continue;
-            
+            }
+
             homePerformance = perfomances.containsKey(m.getHome()) ? 
                     perfomances.get(m.getHome()) : new TeamPerformance(m.getHome());
             awayPerformance = perfomances.containsKey(m.getAway()) ? 
@@ -131,18 +140,18 @@ public class SimulatedLeague {
             diffProbability = Math.abs(homeProbability - awayProbability);
             //goalDiff = 0;
             //if(diffProbability >= 30) {
-                //goalDiff = r.nextInt(2) + 1;
+            //  goalDiff = r.nextInt(2) + 1;
             //}
             goalDiff = 1;
                         
-            if(winningRange <= homeProbability + tieMargin &&
+            if (winningRange <= homeProbability + tieMargin &&
                     winningRange >= homeProbability - tieMargin) { //Tie
                 //m.setAwayGoals(0);
                 //m.setHomeGoals(0);
                                 
                 homePerformance.increaseTie();
                 awayPerformance.increaseTie();
-            } else if(winningRange < homeProbability - tieMargin) { //Home win
+            } else if (winningRange < homeProbability - tieMargin) { //Home win
                 homePerformance.increaseWin();
                 awayPerformance.increaseLosses();
                 
@@ -170,8 +179,7 @@ public class SimulatedLeague {
                 awayPerformance.increaseGoalsBy(goalDiff);
             }
             
-            //if(updateRatings)
-                //elo.updateRatings(m);
+            //if(updateRatings) elo.updateRatings(m);
             
             perfomances.put(homePerformance.getTeam(), homePerformance);
             perfomances.put(awayPerformance.getTeam(), awayPerformance);
@@ -181,8 +189,9 @@ public class SimulatedLeague {
     }
 
     private Map<String, TeamPerformance> realResults(List<Match> matches) {
-        TeamPerformance homePerformance, awayPerformance;
-        for(Match m : matches) {
+        TeamPerformance homePerformance;
+        TeamPerformance awayPerformance;
+        for (Match m : matches) {
             homePerformance = perfomances.containsKey(m.getHome())
                     ? perfomances.get(m.getHome()) : new TeamPerformance(m.getHome());
             awayPerformance = perfomances.containsKey(m.getAway())
@@ -190,16 +199,16 @@ public class SimulatedLeague {
                 
             int increaseGoals = Math.abs(m.getHomeGoals() - m.getAwayGoals());
                 
-            if(m.getAwayGoals() == m.getHomeGoals()) { //Tie
+            if (m.getAwayGoals() == m.getHomeGoals()) { //Tie
                 homePerformance.increaseTie();
                 awayPerformance.increaseTie();
-            } else if(m.getHomeGoals() > m.getAwayGoals()) { //Home win
+            } else if (m.getHomeGoals() > m.getAwayGoals()) { //Home win
                 homePerformance.increaseWin();
                 awayPerformance.increaseLosses();
                         
                 homePerformance.increaseGoalsBy(increaseGoals);
                 awayPerformance.increaseGoalsBy(-increaseGoals);
-            } else if(m.getAwayGoals() > m.getHomeGoals()) { //Away Win
+            } else if (m.getAwayGoals() > m.getHomeGoals()) { //Away Win
                 homePerformance.increaseLosses();
                 awayPerformance.increaseWin();
                     
@@ -219,8 +228,8 @@ public class SimulatedLeague {
     private List<Match> getPastMatches(List<Match> matches) {
         List<Match> real = new ArrayList<>();
         
-        for(Match m : matches) {
-            if(m.getAwayGoals() != -1 && m.getHomeGoals() != -1) {
+        for (Match m : matches) {
+            if (m.getAwayGoals() != -1 && m.getHomeGoals() != -1) {
                 real.add(m);
             }
         }
