@@ -8,7 +8,7 @@ It can calculate a given team rating based on a history of matches spread out ov
 ### Elo
 From Wikipedia:
 
-`The Elo rating system is a method for calculating the relative skill levels of players in competitor-versus-competitor games such as chess. It is named after its creator Arpad Elo, a Hungarian-born American physics professor.`
+> The Elo rating system is a method for calculating the relative skill levels of players in competitor-versus-competitor games such as chess. It is named after its creator Arpad Elo, a Hungarian-born American physics professor.
 
 #### Elo for Soccer
 This implementation has a few tweaks to adjust to soccer matches, more notably, the addition of a variable that changes the points spread in a given match according to the goal difference.
@@ -24,6 +24,7 @@ Higher ranking teams will still get an advantage, but it will be more competitiv
 
 ## Usage
 ### Build an instance.
+
 ```Java
 EloCalculator calculator = new EloCalculator();
 try {
@@ -38,6 +39,7 @@ try {
 ```        
 
 ### Calculate the ratings
+
 ```Java
 calculator.calculateRatings();
 ```    
@@ -106,6 +108,7 @@ A few things I have in mind for the future...
 - [A guide to ESPN's SPI ratings](http://www.espn.com/world-cup/story/_/id/4447078/ce/us/guide-espn-spi-ratings)
 
 ## LICENSE
+
 ```
 The MIT License (MIT)
 
