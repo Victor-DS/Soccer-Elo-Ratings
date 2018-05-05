@@ -22,19 +22,19 @@
  * THE SOFTWARE.
  */
 
-package victor.santiago.soccer.elo.ratings.helper;
+package victor.santiago.soccer.elo.ratings.calculator;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
+import victor.santiago.soccer.elo.ratings.helper.Util;
 import victor.santiago.soccer.elo.ratings.model.EloRating;
 import victor.santiago.soccer.elo.ratings.model.League;
 import victor.santiago.soccer.elo.ratings.model.Match;
@@ -48,34 +48,18 @@ import victor.santiago.soccer.elo.ratings.model.Team;
 @Data
 @Builder
 @AllArgsConstructor
-public class EloHelper {
-    
-    private Map<String, Team> teams;
-    private double k;
-    private boolean regressTowardMean;
+@RequiredArgsConstructor
+public class Calculator {
 
-    public EloHelper() {
-        k = 20;
-        teams = new HashMap<>();
-        regressTowardMean = true;
-    }
+    @NonNull
+    private final Map<String, Team> teams;
+    private boolean regressTowardMean;
+    private double k;
 
     public Team getTeam(String name) {
         return teams.getOrDefault(name, new Team(name));
     }
 
-    public ArrayList<Team> getTeamsSorted(boolean desc) {
-        ArrayList<Team> teamList = new ArrayList<>(teams.values());
-        
-        Collections.sort(teamList);
-        
-        if (desc) {
-            Collections.reverse(teamList);
-        }
-
-        return teamList;
-    }
-    
     public void setTeam(Team t) {
         teams.put(t.getName(), t);
     }
@@ -108,34 +92,30 @@ public class EloHelper {
         double newRatingHome = getNewRating(diffHome, home);
         double newRatingAway = getNewRating(diffAway, away);
         
-        final Date date = m.getDate();
-        
-        home.addRating(new EloRating(date, newRatingHome));
-        away.addRating(new EloRating(date, newRatingAway));
+        home.setLastRating(newRatingHome);
+        away.setLastRating(newRatingAway);
         
         setTeam(home);
         setTeam(away);
     }
 
     public double getNewRating(double pointDiff, Team t) {
-        return t.getLastRating().getRating() + pointDiff;
+        return t.getLastRating() + pointDiff;
     }
     
     public double getPointsDifference(Match m, boolean home) {
         Team a = home ? getTeam(m.getHome()) : getTeam(m.getAway());
         Team b = !home ? getTeam(m.getHome()) : getTeam(m.getAway());
         
-        double gIndex = getGoalDifferenceIndex(m);
-        double result = getMatchResultValue(m, home);
-        double we = getWinningExpectancy(a, b);
+        double goalDifferenceIndex = getGoalDifferenceIndex(m);
+        double matchResultValue = getMatchResultValue(m, home);
+        double winningExpectancy = getWinningExpectancy(a, b);
         
-        double k = m.hasCustomK() ? m.getCustomK() : this.k;
-        
-        return k * gIndex * (result - we);
+        return k * goalDifferenceIndex * (matchResultValue - winningExpectancy);
     }
     
-    private double getMatchResultValue(Match m, boolean home) {
-        if (m.getWinner() == null) {
+    public double getMatchResultValue(Match m, boolean home) {
+        if (m.isTie()) {
             return 0.5;
         } else if (m.getWinner().equals(m.getHome())) {
             return home ? 1.0 : 0.0;
@@ -144,7 +124,7 @@ public class EloHelper {
         }
     }
     
-    private double getGoalDifferenceIndex(Match m) {
+    public double getGoalDifferenceIndex(Match m) {
         int diff = Math.abs(m.getHomeGoals() - m.getAwayGoals());
         
         if (diff == 0 || diff == 1) {
@@ -165,35 +145,24 @@ public class EloHelper {
     }
     
     private double getWinningExpectancy(Team a, Team b) {
-        return 1.00 / 
-                (Math.pow(10.00, (-getRatingDifference(a, b) / 400.00)) + 1.00);
+        return 1.00 / (Math.pow(10.00, (-getRatingDifference(a, b) / 400.00)) + 1.00);
     }
     
     private double getRatingDifference(Team a, Team b) {
-        return a.getLastRating().getRating() - b.getLastRating().getRating();
+        return a.getLastRating() - b.getLastRating();
     }
-    
-    private double getMean() {
-        List<Team> ts = getTeamsSorted(false);
-        long total = 0;
-        
-        for (Team t : ts) {
-            total += t.getLastRating().getRating();
-        }
 
-        return total / ((double) ts.size());
-    }
-    
+    @Deprecated
     private void regressTowardsTheMean() {
-        for (Team t : getTeamsSorted(true)) {
+        for (Team t : teams.values()) {
             regressTowardsTheMean(t);
         }
     }
-    
+
+    @Deprecated
     private void regressTowardsTheMean(Team t) {
-        EloRating er = t.getLastRating();
-        double reduce = ((er.getRating() - 1505.00) / 3.00);
-        t.addRating(new EloRating(Util.addOneDayToDate(er.getDate()), er.getRating() - reduce));
+        double reduce = ((t.getLastRating() - 1505.00) / 3.00);
+        t.addRating(new EloRating(Util.addOneDayToDate(new Date()), t.getLastRating() - reduce));
         setTeam(t);
     }
     
