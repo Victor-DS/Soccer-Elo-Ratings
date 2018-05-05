@@ -35,10 +35,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Builder;
 import lombok.Data;
 
-import victor.santiago.soccer.elo.ratings.helper.EloHelper;
+import victor.santiago.soccer.elo.ratings.calculator.Calculator;
 import victor.santiago.soccer.elo.ratings.helper.Util;
 import victor.santiago.soccer.elo.ratings.model.League;
 import victor.santiago.soccer.elo.ratings.model.Match;
@@ -50,7 +49,6 @@ import victor.santiago.soccer.elo.ratings.model.Team;
  * @author Victor Santiago
  */
 @Data
-@Builder
 public class EloCalculator {
 
     private static final Gson GSON = new GsonBuilder()
@@ -58,24 +56,8 @@ public class EloCalculator {
             .setDateFormat("MMM dd, yyyy HH:mm:ss aa")
             .create();
 
-    private ArrayList<League> leagues;
-    private EloHelper eHelper;
-
-    public double getK() {
-        return eHelper.getK();
-    }
-
-    public void setK(double k) {
-        eHelper.setK(k);
-    }
-
-    public boolean willRegressTowardMean() {
-        return eHelper.isRegressTowardMean();
-    }
-
-    public void setRegressTowardMean(boolean regressTowardMean) {
-        eHelper.setRegressTowardMean(regressTowardMean);
-    }
+    private final ArrayList<League> leagues;
+    private final Calculator eHelper;
 
     public void addLeaguesFromJson(String json) {
         this.leagues.addAll(GSON.fromJson(json, new TypeToken<ArrayList<League>>(){}.getType()));
@@ -98,56 +80,11 @@ public class EloCalculator {
         
         this.leagues.addAll(newLeagues);
     }
-    
-    public void addLeague(League l) {
-        this.leagues.add(l);
-    }
-    
-    public void sortLeague() {
-        Collections.sort(leagues);
-    }
-    
+
     public boolean hasLeagues() {
         return !leagues.isEmpty();
     }
     
-    public void saveLeaguesJsonFile(String path) throws IOException {
-        GSON.toJson(this.leagues, new FileWriter(path));
-    }
-
-    public Map<String, Team> getTeams() {
-        return eHelper.getTeams();
-    }
-    
-    public List<Team> getTeams(boolean sortDesc) {
-        return eHelper.getTeamsSorted(sortDesc);
-    }
-
-    public void setTeams(Map<String, Team> teams) {
-        eHelper.setTeams(teams);
-    }
-    
-    public void setTeamsFromJson(String json) {
-        eHelper.setTeams(GSON.fromJson(json,
-                new TypeToken<Map<String, Team>>(){}.getType()));
-    }
-    
-    public void setTeamsFromJsonFile(String path) throws IOException {
-        setTeamsFromJson(Util.readFile(path));
-    }
-    
-    public Team getTeam(String t) {
-        return eHelper.getTeams().get(t);
-    }
-    
-    public void saveTeamsJsonFile(String path) throws IOException {
-        GSON.toJson(eHelper.getTeams(), new FileWriter(path));
-    }
-    
-    public SimulatedLeague simulateLeague(League l) {
-        return null;
-    }
-     
     public ArrayList<Match> getMatches(boolean sorted) {
         ArrayList<Match> matches = new ArrayList<>();
         
