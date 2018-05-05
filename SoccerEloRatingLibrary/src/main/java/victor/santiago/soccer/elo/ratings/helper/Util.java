@@ -34,27 +34,28 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * Collection of Helper methods
  *
  * @author Victor Santiago
  */
+@UtilityClass
 public class Util {
 
-    private Util() { }
-    
-    public static String readFile(String path) 
+    public String readFile(String path)
             throws IOException {
         return readFile(path, StandardCharsets.UTF_8);
     }
  
-    public static String readFile(String path, Charset encoding) 
+    public String readFile(String path, Charset encoding)
             throws IOException {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return new String(encoded, encoding);
     }
     
-    public static Date addOneDayToDate(Date date) {
+    public Date addOneDayToDate(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         c.add(Calendar.DATE, 1);
@@ -62,7 +63,7 @@ public class Util {
         return c.getTime();
     }
     
-    public static String getDateAsString(Date d) {
+    public String getDateAsString(Date d) {
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         return df.format(d);
     }
