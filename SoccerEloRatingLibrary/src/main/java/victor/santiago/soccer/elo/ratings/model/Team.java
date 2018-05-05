@@ -29,40 +29,24 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.Normalizer;
-import java.util.ArrayList;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class Team implements Comparable<Team> {
     
-    private String name;
-    private ArrayList<EloRating> ratings;
-
-    public Team() {
-        name = "Unknown";
-        ratings = new ArrayList<>();
-    }
-
-    public Team(String name) {
-        this.name = name;
-        ratings = new ArrayList<>();
-    }
-
-    public EloRating getLastRating() {
-        int lastIndex = ratings.size() - 1;
-
-        if (lastIndex < 0) {
-            return new EloRating();
-        }
-        
-        return ratings.get(lastIndex);
-    }
+    private final String name;
+    private List<EloRating> ratings;
+    private double lastRating = 1500.0;
 
     public void addRating(EloRating rating) {
         this.ratings.add(rating);
+        lastRating = rating.getRating();
     }
     
     public String getCleanName() {
@@ -74,10 +58,6 @@ public class Team implements Comparable<Team> {
     
     public void exportToCsv(String filePath) throws IOException {
         export(filePath, ",");
-    }
-    
-    public void exportToTsv(String filePath) throws IOException {
-        export(filePath, "	");
     }
     
     private void export(String filePath, String separator) throws IOException {
@@ -104,7 +84,6 @@ public class Team implements Comparable<Team> {
 
     @Override
     public int compareTo(Team o) {
-        return Double.compare(this.getLastRating().getRating(), 
-                o.getLastRating().getRating());
+        return Double.compare(this.getLastRating(), o.getLastRating());
     }
 }
