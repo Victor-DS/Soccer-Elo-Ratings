@@ -44,6 +44,10 @@ public class Match implements Serializable, Comparable<Match> {
 
     private static final long serialVersionUID = 2479667238057736526L;
 
+    public enum Result {
+        VICTORY, TIE, LOSS
+    }
+
     @SerializedName("home")
     @Expose
     private String home;
@@ -68,12 +72,31 @@ public class Match implements Serializable, Comparable<Match> {
     }
 
     public String getWinner() {
-        if (homeGoals == awayGoals) {
-            return null;
-        } else if (homeGoals > awayGoals) {
+        if (homeGoals > awayGoals) {
             return home;
-        } else {
+        } else if (awayGoals > homeGoals) {
             return away;
+        }
+
+        return "";
+    }
+
+    public boolean isTie() {
+        return homeGoals == awayGoals;
+    }
+
+    /**
+     * Gets the match result from the home team point of view.
+     *
+     * @return Enum indicating if it's a victory, tie or loss.
+     */
+    public Result getResult() {
+        if (homeGoals > awayGoals) {
+            return Result.VICTORY;
+        } else if (homeGoals == awayGoals) {
+            return Result.TIE;
+        } else {
+            return Result.LOSS;
         }
     }
     
