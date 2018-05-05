@@ -24,68 +24,26 @@
 
 package victor.santiago.soccer.elo.ratings.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
 /**
  *
  * @author Victor Santiago
  */
+@Data
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class TeamPerformance implements Comparable<TeamPerformance> {
     
-    private String team;
+    private final String team;
     private int wins;
     private int losses;
     private int ties;
     private int points;
     private int goals;
 
-    public TeamPerformance(String team) {
-        this.team = team;
-    }
-
-    public TeamPerformance(String team, int wins, int losses, int ties, int points, int goals) {
-        this.team = team;
-        this.wins = wins;
-        this.losses = losses;
-        this.ties = ties;
-        this.points = points;
-        this.goals = goals;
-    }
-
-    public String getTeam() {
-        return team;
-    }
-
-    public int getWins() {
-        return wins;
-    }
-
-    public void setWins(int wins) {
-        this.wins = wins;
-    }
-
-    public int getLosses() {
-        return losses;
-    }
-
-    public void setLosses(int losses) {
-        this.losses = losses;
-    }
-
-    public int getPoints() {
-        return points;
-    }
-
-    public void setPoints(int points) {
-        this.points = points;
-    }
-
-    public int getTies() {
-        return ties;
-    }
-
-    public void setTies(int ties) {
-        this.ties = ties;
-    }
-    
     public void increaseWin() {
         this.wins++;
         this.points += 3;
@@ -100,14 +58,6 @@ public class TeamPerformance implements Comparable<TeamPerformance> {
         this.points++;
     }
 
-    public int getGoals() {
-        return goals;
-    }
-
-    public void setGoals(int goals) {
-        this.goals = goals;
-    }
-    
     public void increaseGoalsBy(int n) {
         this.goals += n;
     }
