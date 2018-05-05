@@ -30,6 +30,8 @@ import java.util.Map;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import victor.santiago.soccer.elo.ratings.model.SimulatedLeague;
 import victor.santiago.soccer.elo.ratings.model.TeamPerformance;
@@ -39,16 +41,13 @@ import victor.santiago.soccer.elo.ratings.model.TeamPerformance;
  * @author Victor Santiago
  */
 @Data
-@Builder
+@RequiredArgsConstructor
 public class Simulator {
-    
-    private SimulatedLeague sLeague;
+
+    @NonNull
+    private final SimulatedLeague sLeague;
     private boolean updateRatings;
     private boolean useRealResults;
-
-    public Simulator() {
-        sLeague = new SimulatedLeague();
-    }
 
     public Map<String, TeamPerformance> simulate() {
         return sLeague.simulate(updateRatings, useRealResults);
