@@ -31,17 +31,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import lombok.Builder;
 import lombok.Data;
 
-import victor.santiago.soccer.elo.ratings.helper.EloHelper;
+import victor.santiago.soccer.elo.ratings.calculator.Calculator;
 
 /**
  *
  * @author Victor Santiago
  */
 @Data
-@Builder
 public class SimulatedLeague {
 
     private static final Random RANDOM = new Random();
@@ -53,46 +51,9 @@ public class SimulatedLeague {
     private int tieMargin;
     private int k;
 
-    private EloHelper elo;
-    private Map<String, TeamPerformance> perfomances;
+    private Calculator elo;
+    private Map<String, TeamPerformance> performances;
 
-    public SimulatedLeague(Map<String, Team> teams, int tieMargin, int k) {
-        this.teams = teams;
-        this.tieMargin = tieMargin;
-        matches = new ArrayList<>();
-        this.k = k;
-    }
-
-    public SimulatedLeague(Map<String, Team> teams) {
-        this.teams = teams;
-        matches = new ArrayList<>();
-        tieMargin = 5;
-        k = 20;
-    }
-
-    public SimulatedLeague() {
-        teams = new HashMap<>();
-        matches = new ArrayList<>();
-        tieMargin = 5;
-        k = 20;
-    }
-
-    public SimulatedLeague(List<Match> matches, Map<String, Team> teams, 
-            int tieMargin, int k) {
-        this.matches = matches;
-        this.teams = teams;
-        this.tieMargin = tieMargin;
-        this.k = k;
-    }
-
-    public int getTieMargin() {
-        return tieMargin;
-    }
-
-    public void addMatch(Match match) {
-        this.matches.add(match);
-    }
-    
     /**
      * 
      * @param updateRatings Updates a team rating when it wins or loses in a simulated game.
@@ -102,24 +63,19 @@ public class SimulatedLeague {
      * @return  A map with team -> Performance
      */
     public Map<String, TeamPerformance> simulate(boolean updateRatings, boolean useRealResults) {
-        //TODO This is waaaay too long and complicated. It NEEDS to be refactored.
-        HashMap<String, Team> teams = new HashMap<>(this.teams);
+        Map<String, Team> teams = new HashMap<>(this.teams);
         List<Match> matches = new ArrayList<>(this.matches);
-        perfomances = new HashMap<>();
-        elo = new EloHelper(teams, k, false);
+        performances = new HashMap<>();
+        elo = new Calculator(teams, false, k);
         Collections.sort(matches);
         
         List<Match> real = getPastMatches(matches);
         if (useRealResults) {
-            elo.updateRatingsWithMatches(new ArrayList<Match>(real));
+            elo.updateRatingsWithMatches(new ArrayList<>(real));
             realResults(real);
         }
         
-        int winningRange;
-        int goalDiff;
         double homeProbability;
-        double awayProbability;
-        double diffProbability;
         TeamPerformance homePerformance;
         TeamPerformance awayPerformance;
         for (Match m : matches) {
@@ -128,101 +84,111 @@ public class SimulatedLeague {
                 continue;
             }
 
-            homePerformance = perfomances.containsKey(m.getHome()) ? 
-                    perfomances.get(m.getHome()) : new TeamPerformance(m.getHome());
-            awayPerformance = perfomances.containsKey(m.getAway()) ? 
-                    perfomances.get(m.getAway()) : new TeamPerformance(m.getAway());
+            homePerformance = performances.containsKey(m.getHome()) ?
+                    performances.get(m.getHome()) : new TeamPerformance(m.getHome());
+            awayPerformance = performances.containsKey(m.getAway()) ?
+                    performances.get(m.getAway()) : new TeamPerformance(m.getAway());
             
-            winningRange = RANDOM.nextInt(101);
             homeProbability = elo.getWinningProbability(m);
-            awayProbability = 100 - homeProbability;
-            
-            diffProbability = Math.abs(homeProbability - awayProbability);
-            //goalDiff = 0;
-            //if(diffProbability >= 30) {
-            //  goalDiff = r.nextInt(2) + 1;
-            //}
-            goalDiff = 1;
-                        
-            if (winningRange <= homeProbability + tieMargin &&
-                    winningRange >= homeProbability - tieMargin) { //Tie
-                //m.setAwayGoals(0);
-                //m.setHomeGoals(0);
-                                
-                homePerformance.increaseTie();
-                awayPerformance.increaseTie();
-            } else if (winningRange < homeProbability - tieMargin) { //Home win
-                homePerformance.increaseWin();
-                awayPerformance.increaseLosses();
-                
-                //In the future, if the diff in probability is > 30, 
-                //we can randomly give the victory by 1 or 2 goals
-                goalDiff = diffProbability < 30 ? 1 : goalDiff;
-                
-                //m.setHomeGoals(goalDiff);
-                //m.setAwayGoals(0);
-                
-                homePerformance.increaseGoalsBy(goalDiff);
-                awayPerformance.increaseGoalsBy(-goalDiff);
-            } else { //Away win
-                homePerformance.increaseLosses();
-                awayPerformance.increaseWin();
-                
-                //If the diff in probability is > 30, we can randomly give the victory by 1 or 2 goals
-                goalDiff = diffProbability < 30 ? 1 : goalDiff;
-                
-                //m.setHomeGoals(0);
-                //m.setAwayGoals(goalDiff);
-                
-                
-                homePerformance.increaseGoalsBy(-goalDiff);
-                awayPerformance.increaseGoalsBy(goalDiff);
+            Match.Result result = getSimulatedMatchResult(homeProbability);
+
+            switch (result) {
+                case VICTORY:
+                    homePerformance.increaseWin();
+                    awayPerformance.increaseLosses();
+
+                    homePerformance.increaseGoalsBy(1);
+                    awayPerformance.increaseGoalsBy(-1);
+                    break;
+
+                case TIE:
+                    homePerformance.increaseTie();
+                    awayPerformance.increaseTie();
+                    break;
+
+                case LOSS:
+                    homePerformance.increaseLosses();
+                    awayPerformance.increaseWin();
+
+                    homePerformance.increaseGoalsBy(-1);
+                    awayPerformance.increaseGoalsBy(1);
+                    break;
+
+                default:
+                    throw new IllegalArgumentException();
             }
-            
+
             //if(updateRatings) elo.updateRatings(m);
-            
-            perfomances.put(homePerformance.getTeam(), homePerformance);
-            perfomances.put(awayPerformance.getTeam(), awayPerformance);
+
+            performances.put(homePerformance.getTeam(), homePerformance);
+            performances.put(awayPerformance.getTeam(), awayPerformance);
         }
                                 
-        return perfomances;
+        return performances;
+    }
+
+    /**
+     * Returns the random result (from home's PoV) given a probability.
+     *
+     * @param probability The probability of home winning.
+     * @return The match result.
+     */
+    private Match.Result getSimulatedMatchResult(double probability) {
+        final int randomValue = RANDOM.nextInt(101);
+
+        if (randomValue <= probability + tieMargin &&
+                randomValue >= probability - tieMargin) {
+            return Match.Result.TIE;
+        } else if (randomValue < probability - tieMargin) {
+            return Match.Result.VICTORY;
+        } else {
+            return Match.Result.LOSS;
+        }
     }
 
     private Map<String, TeamPerformance> realResults(List<Match> matches) {
         TeamPerformance homePerformance;
         TeamPerformance awayPerformance;
-        for (Match m : matches) {
-            homePerformance = perfomances.containsKey(m.getHome())
-                    ? perfomances.get(m.getHome()) : new TeamPerformance(m.getHome());
-            awayPerformance = perfomances.containsKey(m.getAway())
-                    ? perfomances.get(m.getAway()) : new TeamPerformance(m.getAway());
-                
-            int increaseGoals = Math.abs(m.getHomeGoals() - m.getAwayGoals());
-                
-            if (m.getAwayGoals() == m.getHomeGoals()) { //Tie
-                homePerformance.increaseTie();
-                awayPerformance.increaseTie();
-            } else if (m.getHomeGoals() > m.getAwayGoals()) { //Home win
-                homePerformance.increaseWin();
-                awayPerformance.increaseLosses();
-                        
-                homePerformance.increaseGoalsBy(increaseGoals);
-                awayPerformance.increaseGoalsBy(-increaseGoals);
-            } else if (m.getAwayGoals() > m.getHomeGoals()) { //Away Win
-                homePerformance.increaseLosses();
-                awayPerformance.increaseWin();
-                    
-                homePerformance.increaseGoalsBy(-increaseGoals);
-                awayPerformance.increaseGoalsBy(increaseGoals);
+        for (Match match : matches) {
+            homePerformance = performances.getOrDefault(match.getHome(), new TeamPerformance(match.getHome()));
+            awayPerformance = performances.getOrDefault(match.getAway(), new TeamPerformance(match.getAway()));
+
+            int increaseGoals = Math.abs(match.getHomeGoals() - match.getAwayGoals());
+
+            Match.Result matchResult = match.getResult();
+            switch (matchResult) {
+                case VICTORY:
+                    homePerformance.increaseWin();
+                    awayPerformance.increaseLosses();
+
+                    homePerformance.increaseGoalsBy(increaseGoals);
+                    awayPerformance.increaseGoalsBy(-increaseGoals);
+                    break;
+
+                case TIE:
+                    homePerformance.increaseTie();
+                    awayPerformance.increaseTie();
+                    break;
+
+                case LOSS:
+                    homePerformance.increaseLosses();
+                    awayPerformance.increaseWin();
+
+                    homePerformance.increaseGoalsBy(-increaseGoals);
+                    awayPerformance.increaseGoalsBy(increaseGoals);
+                    break;
+
+                default:
+                    throw new IllegalArgumentException();
             }
-                
+
             //elo.updateRatings(m);
-                
-            perfomances.put(homePerformance.getTeam(), homePerformance);
-            perfomances.put(awayPerformance.getTeam(), awayPerformance);
+
+            performances.put(homePerformance.getTeam(), homePerformance);
+            performances.put(awayPerformance.getTeam(), awayPerformance);
         }
 
-        return perfomances;
+        return performances;
     }
     
     private List<Match> getPastMatches(List<Match> matches) {
